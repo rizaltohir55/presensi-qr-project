@@ -23,15 +23,13 @@ const User = sequelize.define('User',
       type: DataTypes.ENUM('admin', 'employee'),
       allowNull: false,
     },
-    // created_at dan updated_at ditangani oleh Sequelize timestamps
+    // created_at dan updated_at akan ditangani oleh Sequelize
   },
   {
     tableName: 'users',
-    // timestamps: true, // Default
+    timestamps: true,    // Aktifkan timestamps
+    underscored: true,   // Gunakan snake_case (created_at, updated_at)
   }
 );
-
-// Kita akan mendefinisikan asosiasi di file terpisah atau di server.js setelah semua model diimpor
-// untuk menghindari masalah referensi silang (circular dependencies).
 
 module.exports = User;

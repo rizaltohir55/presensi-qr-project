@@ -15,7 +15,7 @@ const Shift = sequelize.define('Shift',
       allowNull: false,
     },
     start_time: {
-      type: DataTypes.TIME, // Tipe data TIME untuk menyimpan jam:menit:detik
+      type: DataTypes.TIME,
       allowNull: false,
     },
     end_time: {
@@ -23,14 +23,15 @@ const Shift = sequelize.define('Shift',
       allowNull: false,
     },
     description: {
-      type: DataTypes.TEXT, // Tipe data TEXT untuk deskripsi yang lebih panjang
-      allowNull: true, // Bisa kosong
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
-    // created_at dan updated_at ditangani oleh Sequelize timestamps
+    // created_at dan updated_at akan ditangani oleh Sequelize
   },
   {
     tableName: 'shifts',
-    // timestamps: true, // Default
+    timestamps: true,   // Aktifkan timestamps
+    underscored: true,  // Gunakan snake_case (created_at, updated_at)
   }
 );
 

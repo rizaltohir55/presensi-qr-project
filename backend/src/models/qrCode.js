@@ -1,7 +1,6 @@
 // backend/src/models/qrCode.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-// Kita tidak mengimpor model terkait di sini dulu untuk menghindari circular dependency
 
 const QRCode = sequelize.define('QRCode',
   {
@@ -12,71 +11,45 @@ const QRCode = sequelize.define('QRCode',
       primaryKey: true,
     },
     code: {
-      type: DataTypes.TEXT, // Menyimpan kode QR yang panjang/unik
+      type: DataTypes.TEXT,
       allowNull: false,
-      unique: true, // Kode QR harus unik
+      unique: true,
     },
     type: {
-      type: DataTypes.ENUM('check_in', 'check_out', 'general'), // Jenis QR Code
+      type: DataTypes.ENUM('check_in', 'check_out', 'general'),
       allowNull: false,
     },
     valid_from: {
-      type: DataTypes.DATE, // Tanggal dan waktu mulai valid
+      type: DataTypes.DATE,
       allowNull: false,
     },
     valid_until: {
-      type: DataTypes.DATE, // Tanggal dan waktu akhir valid
+      type: DataTypes.DATE,
       allowNull: false,
     },
-    // Kita tambahkan foreign key untuk Location (bisa NULL jika tidak terikat lokasi)
     location_id: {
       type: DataTypes.UUID,
       allowNull: true,
-      // references: {
-      //   model: 'Location',
-      //   key: 'id'
-      // }
     },
-    // Kita tambahkan foreign key untuk Shift (bisa NULL jika tidak terikat shift)
     shift_id: {
       type: DataTypes.UUID,
       allowNull: true,
-      // references: {
-      //   model: 'Shift',
-      //   key: 'id'
-      // }
     },
     is_active: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true, // Default aktif
+      defaultValue: true,
       allowNull: false,
     },
-    // Kita tambahkan foreign key untuk User (admin yang membuat QR)
     created_by: {
       type: DataTypes.UUID,
-      allowNull: false, // Harus tahu siapa yang membuat
-      // references: {
-      //   model: 'User',
-      //   key: 'id'
-      // }
+      allowNull: false,
     },
-    // created_at dan updated_at ditangani oleh Sequelize timestamps
+    // created_at dan updated_at akan ditangani oleh Sequelize
   },
   {
     tableName: 'qr_codes',
-    // timestamps: true, // Default
-    // Kita bisa tambahkan indexes jika diperlukan untuk performa query
-    // indexes: [
-    //   {
-    //     fields: ['valid_from', 'valid_until'] // Untuk query berdasarkan waktu validitas
-    //   },
-    //   {
-    //     fields: ['location_id'] // Untuk query berdasarkan lokasi
-    //   },
-    //   {
-    //     fields: ['shift_id'] // Untuk query berdasarkan shift
-    //   }
-    // ]
+    timestamps: true,   // Aktifkan timestamps
+    underscored: true,  // Gunakan snake_case (created_at, updated_at)
   }
 );
 

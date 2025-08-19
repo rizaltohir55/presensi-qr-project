@@ -15,29 +15,27 @@ const Location = sequelize.define('Location',
       allowNull: false,
     },
     latitude: {
-      type: DataTypes.DOUBLE, // Tipe data DOUBLE untuk koordinat
-      allowNull: true, // Bisa kosong jika tidak digunakan untuk validasi
+      type: DataTypes.DOUBLE,
+      allowNull: true,
     },
     longitude: {
       type: DataTypes.DOUBLE,
-      allowNull: true, // Bisa kosong jika tidak digunakan untuk validasi
+      allowNull: true,
     },
     radius: {
-      type: DataTypes.INTEGER, // Radius dalam meter untuk validasi jarak
-      allowNull: true, // Bisa kosong jika tidak digunakan untuk validasi
-      // validate: {
-      //   min: 0 // Validasi nilai minimal 0
-      // }
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: true, // Bisa kosong
+      allowNull: true,
     },
-    // created_at dan updated_at ditangani oleh Sequelize timestamps
+    // created_at dan updated_at akan ditangani oleh Sequelize
   },
   {
     tableName: 'locations',
-    // timestamps: true, // Default
+    timestamps: true,   // Aktifkan timestamps
+    underscored: true,  // Gunakan snake_case (created_at, updated_at)
   }
 );
 

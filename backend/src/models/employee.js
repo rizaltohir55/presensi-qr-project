@@ -1,10 +1,6 @@
 // backend/src/models/employee.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-// Impor model-model yang terkait untuk referensi tipe data UUID (opsional, untuk kejelasan)
-// const User = require('./user');
-// const Shift = require('./shift');
-// const Location = require('./location');
 
 const Employee = sequelize.define('Employee',
   {
@@ -14,11 +10,6 @@ const Employee = sequelize.define('Employee',
       allowNull: false,
       primaryKey: true,
     },
-    // employee_id: {
-    //   type: DataTypes.STRING,
-    //   allowNull: false,
-    //   unique: true,
-    // },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -39,44 +30,30 @@ const Employee = sequelize.define('Employee',
       type: DataTypes.STRING,
       allowNull: true,
     },
-    // Menambahkan foreign key untuk Shift
     shift_id: {
-      type: DataTypes.UUID, // Tipe data UUID
-      allowNull: true, // Bisa kosong/null jika karyawan tidak terikat shift tertentu
-      // references: {
-      //   model: 'Shift', // Nama model
-      //   key: 'id'
-      // },
-      // onDelete: 'SET NULL', // Jika shift dihapus, set shift_id jadi NULL
-      // onUpdate: 'CASCADE'   // Jika id shift berubah, update shift_id
+      type: DataTypes.UUID,
+      allowNull: true,
     },
-    // Menambahkan foreign key untuk Location
     location_id: {
-      type: DataTypes.UUID, // Tipe data UUID
-      allowNull: true, // Bisa kosong/null jika karyawan tidak terikat lokasi tertentu
-      // references: {
-      //   model: 'Location', // Nama model
-      //   key: 'id'
-      // },
-      // onDelete: 'SET NULL', // Jika lokasi dihapus, set location_id jadi NULL
-      // onUpdate: 'CASCADE'   // Jika id lokasi berubah, update location_id
+      type: DataTypes.UUID,
+      allowNull: true,
     },
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       allowNull: false,
     },
-    // Foreign key untuk relasi dengan User
     user_id: {
       type: DataTypes.UUID,
       allowNull: false,
       unique: true,
     }
-    // created_at dan updated_at ditangani oleh Sequelize timestamps
+    // created_at dan updated_at akan ditangani oleh Sequelize
   },
   {
     tableName: 'employees',
-    // timestamps: true, // Default
+    timestamps: true,   // Aktifkan timestamps
+    underscored: true,  // Gunakan snake_case (created_at, updated_at)
   }
 );
 
