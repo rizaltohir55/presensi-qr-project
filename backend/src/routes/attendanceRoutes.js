@@ -38,11 +38,11 @@ const adminRoutes = express.Router();
 adminRoutes.use(authenticateToken);
 adminRoutes.use(authorizeRole(['admin']));
 
-// GET /api/admin/attendances - Admin lihat rekap presensi
-adminRoutes.get('/', getAttendanceReport);
-
 // GET /api/admin/attendances/:id - Admin lihat detail presensi
 adminRoutes.get('/:id', getAttendanceById);
+
+// GET /api/admin/attendances - Admin lihat rekap presensi
+adminRoutes.get('/', getAttendanceReport);
 
 // Mount admin routes dengan prefix
 router.use('/admin', adminRoutes); // Prefix: /api/admin/attendances/...

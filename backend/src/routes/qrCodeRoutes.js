@@ -1,6 +1,6 @@
 // backend/src/routes/qrCodeRoutes.js
 const express = require('express');
-const { createQRCode, getAllQRCodes, getQRCodeById, updateQRCode, deleteQRCode } = require('../controllers/qrCodeController');
+const { createQRCode, getAllQRCodes, getQRCodeById, updateQRCode, deleteQRCode, getDynamicQRCode } = require('../controllers/qrCodeController');
 const { authenticateToken, authorizeRole } = require('../middleware/authMiddleware'); // Middleware autentikasi & otorisasi
 
 const router = express.Router();
@@ -12,6 +12,9 @@ router.use(authorizeRole(['admin'])); // Middleware ini juga akan dijalankan unt
 
 // POST /api/admin/qr-codes/generate - Buat QR Code baru
 router.post('/generate', createQRCode);
+
+// POST /api/admin/qr-codes/generate-new - Generate QR Code baru
+router.post('/generate-new', getDynamicQRCode);
 
 // GET /api/admin/qr-codes - Dapatkan semua QR Code
 router.get('/', getAllQRCodes);

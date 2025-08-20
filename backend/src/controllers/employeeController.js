@@ -1,6 +1,5 @@
 // backend/src/controllers/employeeController.js
-const Employee = require('../models/employee');
-const User = require('../models/user'); // Kita butuh model User untuk membuat user terkait
+const { Employee, User, Shift, Location } = require('../models'); // Menggunakan db object terpusat
 const bcrypt = require('bcryptjs'); // Untuk hashing password default
 const { v4: uuidv4 } = require('uuid'); // Untuk membuat employee_id unik jika diperlukan
 
@@ -93,16 +92,16 @@ const getAllEmployees = async (req, res) => {
           as: 'user',
           attributes: ['id', 'username', 'role'] // Hanya ambil field tertentu dari User
         },
-        // {
-        //   model: Shift,
-        //   as: 'shift',
-        //   attributes: ['id', 'name'] // Hanya ambil field tertentu dari Shift
-        // },
-        // {
-        //   model: Location,
-        //   as: 'location',
-        //   attributes: ['id', 'name'] // Hanya ambil field tertentu dari Location
-        // }
+        {
+          model: Shift,
+          as: 'shift',
+          attributes: ['id', 'name'] // Hanya ambil field tertentu dari Shift
+        },
+        {
+          model: Location,
+          as: 'location',
+          attributes: ['id', 'name'] // Hanya ambil field tertentu dari Location
+        }
       ],
       order: [['name', 'ASC']] // Urutkan berdasarkan nama
     });
@@ -131,8 +130,17 @@ const getEmployeeById = async (req, res) => {
           model: User,
           as: 'user',
           attributes: ['id', 'username', 'role']
+        },
+        {
+          model: Shift,
+          as: 'shift',
+          attributes: ['id', 'name']
+        },
+        {
+          model: Location,
+          as: 'location',
+          attributes: ['id', 'name']
         }
-        // Tambahkan include untuk Shift dan Location jika diperlukan
       ]
     });
 
@@ -247,11 +255,39 @@ const deleteEmployee = async (req, res) => {
   }
 };
 
+// Fungsi untuk mendapatkan semua user (Read - All, Admin only)
+const getAllUsers = async (req, res) => {
+  try {
+    // 1. Ambil semua user dari database
+    // Kita bisa mengecualikan password_hash untuk keamanan
+    const users = await User.findAll({
+      attributes: { exclude: ['password_hash'] },
+      include: [{
+        model: Employee,
+        as: 'employee',
+        attributes: ['id', 'name', 'position'] // Ambil beberapa data employee jika ada
+      }],
+      order: [['username', 'ASC']] // Urutkan berdasarkan username
+    });
+
+    // 2. Kirim response sukses dengan data
+    return res.status(200).json({
+      message: 'Users retrieved successfully',
+      users: users
+    });
+
+  } catch (error) {
+    console.error('Error in getAllUsers controller:', error);
+    return res.status(500).json({ message: 'Server error retrieving users' });
+  }
+};
+
 // Ekspor semua fungsi controller
 module.exports = {
   createEmployee,
   getAllEmployees,
   getEmployeeById,
   updateEmployee,
-  deleteEmployee
+  deleteEmployee,
+  getAllUsers
 };

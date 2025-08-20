@@ -1,9 +1,21 @@
-// backend/src/models/shift.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+'use strict';
+const { Model } = require('sequelize');
 
-const Shift = sequelize.define('Shift',
-  {
+module.exports = (sequelize, DataTypes) => {
+  class Shift extends Model {
+    static associate(models) {
+      Shift.hasMany(models.Employee, {
+        foreignKey: 'shift_id',
+        as: 'employees',
+      });
+      Shift.hasMany(models.QRCode, {
+        foreignKey: 'shift_id',
+        as: 'qrCodes',
+      });
+    }
+  }
+
+  Shift.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -26,13 +38,13 @@ const Shift = sequelize.define('Shift',
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    // created_at dan updated_at akan ditangani oleh Sequelize
-  },
-  {
+  }, {
+    sequelize,
+    modelName: 'Shift',
     tableName: 'shifts',
-    timestamps: true,   // Aktifkan timestamps
-    underscored: true,  // Gunakan snake_case (created_at, updated_at)
-  }
-);
+    timestamps: true,
+    underscored: true,
+  });
 
-module.exports = Shift;
+  return Shift;
+};

@@ -1,9 +1,29 @@
-// backend/src/models/employee.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+'use strict';
+const { Model } = require('sequelize');
 
-const Employee = sequelize.define('Employee',
-  {
+module.exports = (sequelize, DataTypes) => {
+  class Employee extends Model {
+    static associate(models) {
+      Employee.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+      });
+      Employee.belongsTo(models.Shift, {
+        foreignKey: 'shift_id',
+        as: 'shift',
+      });
+      Employee.belongsTo(models.Location, {
+        foreignKey: 'location_id',
+        as: 'location',
+      });
+      Employee.hasMany(models.Attendance, {
+        foreignKey: 'employee_id',
+        as: 'attendances',
+      });
+    }
+  }
+
+  Employee.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -48,13 +68,13 @@ const Employee = sequelize.define('Employee',
       allowNull: false,
       unique: true,
     }
-    // created_at dan updated_at akan ditangani oleh Sequelize
-  },
-  {
+  }, {
+    sequelize,
+    modelName: 'Employee',
     tableName: 'employees',
-    timestamps: true,   // Aktifkan timestamps
-    underscored: true,  // Gunakan snake_case (created_at, updated_at)
-  }
-);
+    timestamps: true,
+    underscored: true,
+  });
 
-module.exports = Employee;
+  return Employee;
+};

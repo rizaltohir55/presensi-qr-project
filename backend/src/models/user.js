@@ -1,9 +1,27 @@
-// backend/src/models/user.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+'use strict';
+const { Model } = require('sequelize');
 
-const User = sequelize.define('User',
-  {
+module.exports = (sequelize, DataTypes) => {
+  class User extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+      User.hasOne(models.Employee, {
+        foreignKey: 'user_id',
+        as: 'employeeProfile',
+      });
+      User.hasMany(models.QRCode, {
+        foreignKey: 'created_by',
+        as: 'createdQRCodes',
+      });
+    }
+  }
+
+  User.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -23,13 +41,13 @@ const User = sequelize.define('User',
       type: DataTypes.ENUM('admin', 'employee'),
       allowNull: false,
     },
-    // created_at dan updated_at akan ditangani oleh Sequelize
-  },
-  {
+  }, {
+    sequelize,
+    modelName: 'User',
     tableName: 'users',
-    timestamps: true,    // Aktifkan timestamps
-    underscored: true,   // Gunakan snake_case (created_at, updated_at)
-  }
-);
+    timestamps: true,
+    underscored: true,
+  });
 
-module.exports = User;
+  return User;
+};

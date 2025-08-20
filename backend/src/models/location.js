@@ -1,9 +1,21 @@
-// backend/src/models/location.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+'use strict';
+const { Model } = require('sequelize');
 
-const Location = sequelize.define('Location',
-  {
+module.exports = (sequelize, DataTypes) => {
+  class Location extends Model {
+    static associate(models) {
+      Location.hasMany(models.Employee, {
+        foreignKey: 'location_id',
+        as: 'employees',
+      });
+      Location.hasMany(models.QRCode, {
+        foreignKey: 'location_id',
+        as: 'qrCodes',
+      });
+    }
+  }
+
+  Location.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -14,29 +26,35 @@ const Location = sequelize.define('Location',
       type: DataTypes.STRING,
       allowNull: false,
     },
+    
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    // New fields
+    address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     latitude: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.DECIMAL(10, 8),
       allowNull: true,
     },
     longitude: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.DECIMAL(11, 8),
       allowNull: true,
     },
     radius: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    // created_at dan updated_at akan ditangani oleh Sequelize
-  },
-  {
+  }, {
+    sequelize,
+    modelName: 'Location',
     tableName: 'locations',
-    timestamps: true,   // Aktifkan timestamps
-    underscored: true,  // Gunakan snake_case (created_at, updated_at)
-  }
-);
+    timestamps: true,
+    underscored: true,
+  });
 
-module.exports = Location;
+  return Location;
+};

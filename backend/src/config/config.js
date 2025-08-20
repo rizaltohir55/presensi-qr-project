@@ -1,5 +1,5 @@
 // backend/src/config/config.js
-require('dotenv').config(); // Memuat variabel dari .env
+require('dotenv').config(); // Memuat variabel dari .env yang ada di direktori saat ini
 
 module.exports = {
   development: {

@@ -1,10 +1,9 @@
 // backend/src/controllers/locationController.js
-const Location = require('../models/location');
+const { Location } = require('../models');
 
 // Fungsi untuk membuat lokasi baru (Create)
 const createLocation = async (req, res) => {
-  const { name, latitude, longitude, radius, description } = req.body;
-
+  const { name, description, address, latitude, longitude, radius } = req.body;
   try {
     // 1. Validasi input dasar (bisa diperluas)
     if (!name) {
@@ -14,10 +13,11 @@ const createLocation = async (req, res) => {
     //Buat lokasi baru di database
 const newLocation = await Location.create({
 name,
+description,
+address,
 latitude,
 longitude,
-radius,
-description
+radius
 });
 
 // 3. Kirim response sukses
@@ -87,7 +87,7 @@ return res.status(500).json({ message: 'Server error retrieving location' });
 // Fungsi untuk memperbarui lokasi (Update)
 const updateLocation = async (req, res) => {
 const { id } = req.params; // Ambil ID dari parameter URL
-const { name, latitude, longitude, radius, description } = req.body;
+const { name, description, address, latitude, longitude, radius } = req.body;
 try {
 // 1. Cari lokasi yang akan diperbarui
 const location = await Location.findByPk(id);
@@ -104,10 +104,11 @@ return res.status(404).json({ message: 'Location not found' });
 if (Object.keys(req.body).length > 0) {
 await location.update({
 name: name !== undefined ? name : location.name,
+description: description !== undefined ? description : location.description,
+address: address !== undefined ? address : location.address,
 latitude: latitude !== undefined ? latitude : location.latitude,
 longitude: longitude !== undefined ? longitude : location.longitude,
-radius: radius !== undefined ? radius : location.radius,
-description: description !== undefined ? description : location.description
+radius: radius !== undefined ? radius : location.radius
 });
 }
 

@@ -1,8 +1,7 @@
 // backend/src/controllers/authController.js
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
-const Employee = require('../models/employee');
+const { User, Employee } = require('../models');
 
 // Fungsi untuk Login
 const login = async (req, res) => {
@@ -22,7 +21,7 @@ const login = async (req, res) => {
       where: { username: username },
       include: [{
         model: Employee,
-        as: 'employee', // Alias yang sama dengan yang didefinisikan di asosiasi
+        as: 'employeeProfile', // Alias yang sama dengan yang didefinisikan di asosiasi
         attributes: ['id', 'name', 'email', 'position', 'is_active'] // Ambil field yang relevan
       }]
     });
@@ -49,12 +48,12 @@ const login = async (req, res) => {
         username: user.username,
         role: user.role,
         // Tambahkan informasi employee jika ada
-        employee: user.employee ? {
-          id: user.employee.id,
-          name: user.employee.name,
-          email: user.employee.email,
-          position: user.employee.position,
-          is_active: user.employee.is_active
+        employee: user.employeeProfile ? {
+          id: user.employeeProfile.id,
+          name: user.employeeProfile.name,
+          email: user.employeeProfile.email,
+          position: user.employeeProfile.position,
+          is_active: user.employeeProfile.is_active
         } : null
       }
     };
@@ -93,7 +92,7 @@ const logout = async (req, res) => {
   try {
     // Untuk JWT stateless, logout biasanya ditangani di frontend
     // dengan cara menghapus token dari localStorage/cookies.
-    // Backend bisa melakukan blacklisting token jika diperlukan (dengan Redis, dll).
+    // Backend bisa melakukan blacklisting token jika diperlukan (dengan Redis, dll).\
     // Untuk sekarang, kita cukup kirim pesan sukses.
     return res.status(200).json({ message: 'Logout successful' });
   } catch (error) {
@@ -123,5 +122,5 @@ const getProfile = async (req, res) => {
 module.exports = {
   login,
   logout,
-  getProfile // Tambahkan ini
+  getProfile
 };

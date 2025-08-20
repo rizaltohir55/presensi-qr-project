@@ -1,14 +1,26 @@
-// backend/src/models/attendance.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+'use strict';
+const { Model } = require('sequelize');
 
-const Attendance = sequelize.define('Attendance',
-  {
+module.exports = (sequelize, DataTypes) => {
+  class Attendance extends Model {
+    static associate(models) {
+      Attendance.belongsTo(models.Employee, {
+        foreignKey: 'employee_id',
+        as: 'employee',
+      });
+    }
+  }
+
+  Attendance.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
       primaryKey: true,
+    },
+    employee_id: { // Make sure employee_id is defined
+      type: DataTypes.UUID,
+      allowNull: false,
     },
     date: {
       type: DataTypes.DATEONLY,
@@ -39,19 +51,19 @@ const Attendance = sequelize.define('Attendance',
       defaultValue: 'absent',
       allowNull: false,
     },
-    // created_at dan updated_at akan ditangani oleh Sequelize
-  },
-  {
+  }, {
+    sequelize,
+    modelName: 'Attendance',
     tableName: 'attendances',
-    timestamps: true,   // Aktifkan timestamps
-    underscored: true,  // Gunakan snake_case (created_at, updated_at)
+    timestamps: true,
+    underscored: true,
     indexes: [
       {
         unique: true,
         fields: ['employee_id', 'date']
       }
     ]
-  }
-);
+  });
 
-module.exports = Attendance;
+  return Attendance;
+};

@@ -1,9 +1,25 @@
-// backend/src/models/qrCode.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+'use strict';
+const { Model } = require('sequelize');
 
-const QRCode = sequelize.define('QRCode',
-  {
+module.exports = (sequelize, DataTypes) => {
+  class QRCode extends Model {
+    static associate(models) {
+      QRCode.belongsTo(models.Location, {
+        foreignKey: 'location_id',
+        as: 'location',
+      });
+      QRCode.belongsTo(models.Shift, {
+        foreignKey: 'shift_id',
+        as: 'shift',
+      });
+      QRCode.belongsTo(models.User, {
+        foreignKey: 'created_by',
+        as: 'creator',
+      });
+    }
+  }
+
+  QRCode.init({
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -44,13 +60,13 @@ const QRCode = sequelize.define('QRCode',
       type: DataTypes.UUID,
       allowNull: false,
     },
-    // created_at dan updated_at akan ditangani oleh Sequelize
-  },
-  {
+  }, {
+    sequelize,
+    modelName: 'QRCode',
     tableName: 'qr_codes',
-    timestamps: true,   // Aktifkan timestamps
-    underscored: true,  // Gunakan snake_case (created_at, updated_at)
-  }
-);
+    timestamps: true,
+    underscored: true,
+  });
 
-module.exports = QRCode;
+  return QRCode;
+};

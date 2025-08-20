@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Aplikasi presensi berbasis QR Code",
   "main": "server.js",
-
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
@@ -25,6 +24,7 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.5",
     "pg-hstore": "^2.3.4",
+    "qrcode": "^1.5.4",
     "sequelize": "^6.37.3"
   },
   "devDependencies": {

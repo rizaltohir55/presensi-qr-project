@@ -1,6 +1,10 @@
 // backend/src/controllers/qrCodeController.js
-const QRCode = require('../models/qrCode');
+const { QRCode, Location, Shift } = require('../models');
 const { v4: uuidv4 } = require('uuid'); // Untuk membuat kode QR unik
+const { generateShortCode } = require('../utils/codeGenerator'); // Import short code generator
+const QRCodeGenerator = require('qrcode');
+const crypto = require('crypto');
+const { generateToken } = require('../utils/qrTokenGenerator');
 
 // Fungsi untuk membuat QR Code baru (Create)
 const createQRCode = async (req, res) => {
@@ -23,7 +27,7 @@ const createQRCode = async (req, res) => {
 
     // 3. Buat kode QR unik
     // Bisa berupa UUID, atau string acak lainnya
-    const uniqueCode = `QR-${uuidv4()}`;
+    const uniqueCode = `QR-${generateShortCode(6)}`;
 
     // 4. Buat QR Code baru di database
     const newQRCode = await QRCode.create({
@@ -42,7 +46,8 @@ const createQRCode = async (req, res) => {
     const { created_by, ...qrCodeToSend } = newQRCode.get(); // Hilangkan created_by dari response
     return res.status(201).json({
       message: 'QR Code generated successfully',
-      qrCode: qrCodeToSend
+      qrCode: qrCodeToSend,
+      uniqueCode: newQRCode.code // Add the unique short code to the response
     });
 
   } catch (error) {
@@ -66,18 +71,18 @@ const getAllQRCodes = async (req, res) => {
     // 1. Ambil semua QR Code dari database
     // Bisa ditambahkan pagination, sorting, filtering, dan eager loading relasi
     const qrCodes = await QRCode.findAll({
-      // include: [
-      //   {
-      //     model: Location,
-      //     as: 'location',
-      //     attributes: ['id', 'name'] // Hanya ambil field tertentu dari Location
-      //   },
-      //   {
-      //     model: Shift,
-      //     as: 'shift',
-      //     attributes: ['id', 'name'] // Hanya ambil field tertentu dari Shift
-      //   }
-      // ],
+      include: [
+        {
+          model: Location,
+          as: 'location',
+          attributes: ['id', 'name'] // Hanya ambil field tertentu dari Location
+        },
+        {
+          model: Shift,
+          as: 'shift',
+          attributes: ['id', 'name'] // Hanya ambil field tertentu dari Shift
+        }
+      ],
       order: [['created_at', 'DESC']] // Urutkan berdasarkan waktu pembuatan, terbaru dulu
     });
 
@@ -99,7 +104,7 @@ const getQRCodeById = async (req, res) => {
 
   try {
     // 1. Cari QR Code berdasarkan ID
-    const qrCode = await QRCode.findByPk(id /*, {
+    const qrCode = await QRCode.findByPk(id, {
       include: [
         {
           model: Location,
@@ -112,7 +117,7 @@ const getQRCodeById = async (req, res) => {
           attributes: ['id', 'name']
         }
       ]
-    }*/); // Include bisa ditambahkan jika diperlukan
+    });
 
     // 2. Jika tidak ditemukan
     if (!qrCode) {
@@ -212,10 +217,66 @@ return res.status(500).json({ message: 'Server error deleting QR Code' });
 }
 };
 // Ekspor semua fungsi controller
+const getDynamicQRCode = async (req, res) => {
+  const { location_id, shift_id } = req.query; // Use req.query for GET requests
+  const creator_id = req.user.id; // Assuming admin user is logged in and req.user.id is available
+
+  try {
+    const now = new Date();
+    const valid_from = now;
+    const valid_until = new Date(now.getTime() + 60 * 1000); // 1 minute from now
+
+    // Generate a unique code for this QR instance
+    const uniqueCode = `DYNAMIC-QR-${generateShortCode(6)}`;
+
+    // Store this dynamic QR code instance in the database
+    const newQRCodeInstance = await QRCode.create({
+      code: uniqueCode,
+      type: 'general', // Or 'general', depending on your specific needs
+      valid_from: valid_from,
+      valid_until: valid_until,
+      location_id: location_id || null,
+      shift_id: shift_id || null,
+      is_active: true,
+      created_by: creator_id,
+    });
+
+    // Data to be encoded in the QR code
+    // Include the uniqueCode and valid_until for frontend validation
+    // Generate time-based token
+    const token = generateToken(location_id, shift_id);
+
+    // Data to be encoded in the QR code
+    // Include the uniqueCode, valid_until, and the generated token for frontend validation
+    const qrData = JSON.stringify({
+      token: token, // The time-based token
+      code: uniqueCode, // The unique identifier for this QR code instance (from DB)
+      valid_until: valid_until.toISOString(), // Send as ISO string for easy parsing
+      location_id: location_id || null,
+      shift_id: shift_id || null,
+    });
+
+    // Generate QR code image as a data URL
+    const qrCodeImage = await QRCodeGenerator.toDataURL(qrData);
+
+    return res.status(200).json({
+      message: 'Dynamic QR Code generated successfully',
+      qrCodeImage: qrCodeImage,
+      valid_until: valid_until.toISOString(), // Send valid_until to frontend for countdown
+      qrCodeId: newQRCodeInstance.id, // Optionally send the DB ID
+      uniqueCode: newQRCodeInstance.code // Add the unique short code to the response
+    });
+  } catch (error) {
+    console.error('Error in getDynamicQRCode controller:', error);
+    return res.status(500).json({ message: `Server error generating dynamic QR Code: ${error.message || 'Unknown error'}` });
+  }
+};
+
 module.exports = {
-createQRCode,
-getAllQRCodes,
-getQRCodeById,
-updateQRCode,
-deleteQRCode
+  createQRCode,
+  getAllQRCodes,
+  getQRCodeById,
+  updateQRCode,
+  deleteQRCode,
+  getDynamicQRCode, // Export the new function
 };

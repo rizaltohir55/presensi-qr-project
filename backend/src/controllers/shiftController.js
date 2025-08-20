@@ -1,5 +1,5 @@
 // backend/src/controllers/shiftController.js
-const Shift = require('../models/shift'); // Mengimpor model Shift
+const { Shift } = require('../models');
 
 // Fungsi untuk membuat shift baru (Create)
 const createShift = async (req, res) => {
